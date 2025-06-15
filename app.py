@@ -27,12 +27,29 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(MQTT_TOPIC)
 
 def on_message(client, userdata, msg):
-    message = msg.payload.decode()
-    print("📥 MQTT 收到：", message)
+    print("📥 MQTT 收到：", msg.payload)
+
     try:
-        line_bot_api.push_message(user_id, TextSendMessage(text=f"📡 MQTT：{message}"))
-    except Exception as e:
-        print("❌ 傳送 LINE 訊息失敗：", e)
+        payload = json.loads(msg.payload.decode())
+        people = payload.get("people")
+        values = payload.get("values", [])
+        if not values:
+            return
+
+        value = values[0]
+
+        if value == 1:
+            # 發送提示訊息：「可能有人」
+            line_bot_api.push_message(
+                user_id,
+                TextSendMessage(text="⚠️ 可能有人")
+            )
+
+        elif value == 2:
+                line_bot_api.push_message(
+                user_id,
+                TextSendMessage(text="人臉辨識")
+            )
 
 # ===== 啟動 MQTT =====
 mqtt_client = mqtt.Client()
