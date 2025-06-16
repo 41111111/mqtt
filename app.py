@@ -1,6 +1,7 @@
 import os
 import threading
 import json
+import requests
 import paho.mqtt.client as mqtt
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
@@ -27,6 +28,9 @@ def on_connect(client, userdata, flags, rc):
     print("✅ MQTT 已連線，訂閱主題：", MQTT_TOPIC)
     client.subscribe(MQTT_TOPIC)
 
+import json
+import requests
+
 def on_message(client, userdata, msg):
     print("📥 MQTT 收到：", msg.payload)
 
@@ -40,23 +44,41 @@ def on_message(client, userdata, msg):
         value = values[0]
 
         if value == 1:
-            # 發送提示訊息：「可能有人」
-            line_bot_api.push_message(
-                user_id,
-                TextSendMessage(text="⚠️ 可能有人")
-            )
+            line_bot_api.push_message(user_id, TextSendMessage(text="⚠️ 可能有人"))
 
         elif value == 2:
-                line_bot_api.push_message(
-                user_id,
-                TextSendMessage(text="人臉辨識")
-            )
+            # 模擬 LINE 使用者傳送 "人臉辨識"
+            webhook_url = os.getenv("https://mqtt-vwcn.onrender.com/callback")  # 例如：https://你的專案.onrender.com/callback
+
+            # 模擬 LINE 傳來的 webhook JSON 結構
+            fake_event = {
+                "events": [{
+                    "type": "message",
+                    "message": {
+                        "type": "text",
+                        "text": "人臉辨識"
+                    },
+                    "source": {
+                        "type": "user",
+                        "userId": user_id
+                    },
+                    "replyToken": "00000000000000000000000000000000"  # 假的 token，會被忽略
+                }]
+            }
+
+            try:
+                res = requests.post(webhook_url, json=fake_event, timeout=5)
+                if res.status_code == 200:
+                    print("✅ 模擬 webhook 傳送成功")
+                else:
+                    print("❌ webhook 回應錯誤：", res.status_code, res.text)
+            except Exception as e:
+                print("❌ 模擬 webhook 錯誤：", str(e))
+
     except Exception as e:
-        print("❌ JSON 錯誤：", e)
-        line_bot_api.push_message(
-            user_id,
-            TextSendMessage(text=f"⚠️ 訊息處理失敗：{str(e)}")
-        )
+        print("❌ JSON 處理錯誤：", str(e))
+        line_bot_api.push_message(user_id, TextSendMessage(text=f"⚠️ 訊息處理失敗：{str(e)}"))
+
 # ===== 啟動 MQTT =====
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
