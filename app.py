@@ -1,5 +1,6 @@
 import os
 import threading
+import json
 import paho.mqtt.client as mqtt
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
