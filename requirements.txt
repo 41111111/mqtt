@@ -2,4 +2,3 @@ flask
 paho-mqtt
 line-bot-sdk
 gunicorn
-json
