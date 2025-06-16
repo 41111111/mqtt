@@ -48,8 +48,7 @@ def on_message(client, userdata, msg):
 
         elif value == 2:
             # 模擬 LINE 使用者傳送 "人臉辨識"
-            webhook_url = os.getenv("https://mqtt-vwcn.onrender.com/callback")  # 例如：https://你的專案.onrender.com/callback
-
+            webhook_url = "https://mqtt-vwcn.onrender.com/callback"
             # 模擬 LINE 傳來的 webhook JSON 結構
             fake_event = {
                 "events": [{
