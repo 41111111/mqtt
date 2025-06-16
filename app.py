@@ -50,7 +50,12 @@ def on_message(client, userdata, msg):
                 user_id,
                 TextSendMessage(text="人臉辨識")
             )
-
+    except Exception as e:
+        print("❌ JSON 錯誤：", e)
+        line_bot_api.push_message(
+            user_id,
+            TextSendMessage(text=f"⚠️ 訊息處理失敗：{str(e)}")
+        )
 # ===== 啟動 MQTT =====
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
